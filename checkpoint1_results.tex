@@ -1,0 +1,18 @@
+\noindent\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrrrrr}
+\toprule
+Runtime & Workload & IPC & Branch MPKI & Conditional MPKI & Indirect-call MPKI & Accuracy (\%) & L1D miss (\%) & L1D latency & LLC miss (\%) & LLC latency \\
+\midrule
+Python & Sequential & 0.9716 & 12.490 & 11.800 & 0.009 & 94.79 & 4.44 & 172.8 & 99.65 & 180.9 \\
+Python & BranchPredictable & 0.9921 & 12.340 & 11.670 & 0.007 & 94.86 & 4.49 & 171.4 & 98.56 & 180.8 \\
+Python & BranchUnpredictable & 0.9801 & 12.570 & 11.890 & 0.006 & 94.77 & 4.43 & 172.4 & 99.72 & 181.0 \\
+Python & PointerChase & 0.9899 & 12.430 & 11.760 & 0.006 & 94.82 & 4.39 & 173.2 & 99.28 & 178.8 \\
+Python & DynamicDispatch & 0.9874 & 12.520 & 11.840 & 0.006 & 94.79 & 4.43 & 173.2 & 99.75 & 180.8 \\
+Java & Sequential & 1.5000 & 20.470 & 0.220 & 0.000 & 90.18 & 0.83 & 179.0 & 100.00 & 154.3 \\
+Java & BranchPredictable & 1.6170 & 8.271 & 7.863 & 0.000 & 96.43 & 0.04 & 210.3 & 100.00 & 185.0 \\
+Java & BranchUnpredictable & 1.5290 & 23.520 & 6.027 & 0.000 & 89.88 & 0.00 & -- & 0.00 & -- \\
+Java & PointerChase & 0.8578 & 0.219 & 0.219 & 0.000 & 99.90 & 2.04 & 154.7 & 100.00 & 171.6 \\
+Java & DynamicDispatch & 1.4960 & 9.406 & 0.496 & 0.007 & 94.93 & 0.13 & 206.4 & 100.00 & 181.1 \\
+\bottomrule
+\end{tabular}%
+}

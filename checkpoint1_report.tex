@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\setlength{\emergencystretch}{2em}
+
+\title{Microarchitectural Characterization of Dynamic Language Runtimes\\
+\large Checkpoint I: Baseline Cache, Branch, and Stall Measurements}
+\author{Y Tagore Ravindra Sree}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report compares five small workloads in Python and Java. They test
+different memory and branch patterns. PIN captures each program's instructions,
+and ChampSim replays them. Java pointer chasing stood out in these results.
+Python's five workloads looked more alike. These are simulator results, not
+program run times on a real processor.
+\end{abstract}
+
+\section{Why this question?}
+Dynamic languages do more than the operations written in source code.
+Interpreters and runtimes also run instructions. These extra instructions can
+affect memory access and branches. I wanted to see which workload patterns
+stand out in Python and Java traces. This is an early comparison, not a
+general ranking of the two languages.
+
+\section{Workloads}
+\begin{itemize}
+  \item \textbf{Sequential}: scans a 65,536-element array or list.
+  \item \textbf{BranchPredictable}: takes one branch outcome most of the time.
+  \item \textbf{BranchUnpredictable}: uses a repeatable, random-like branch pattern.
+  \item \textbf{PointerChase}: follows references through an 8,192-node cycle.
+  \item \textbf{DynamicDispatch}: calls one of four operation implementations.
+\end{itemize}
+The source files are in \texttt{programs}. Each workload is repeatable and
+prints a result. The Python and Java versions use similar ideas, but not
+identical data layouts. For example, Python uses boxed objects where Java may
+use primitive arrays. So these are not identical programs across languages.
+
+\section{Experimental method}
+Intel PIN captures instructions and memory addresses. ChampSim replays each
+captured trace. Each trace skips 5,000,000 instructions, then records
+1,000,000. ChampSim warms up for 100,000 instructions. It then measures about
+899,000 instructions. The final count can be slightly higher because
+instructions retire in groups.
+
+The simulated processor has one core and a bimodal branch predictor. It has a
+48\,KiB L1D, 512\,KiB L2, and 2\,MiB LLC. Their hit latencies are 5, 10, and
+20 cycles. The configured core runs at 4\,GHz, with no prefetchers. Settings
+are in \texttt{Champsim/champsim\_config.json}.
+
+Java uses HotSpot with its JIT enabled and Serial GC. Class-data sharing and
+compressed object and class pointers are disabled. This avoids a memory-mapping
+conflict with PIN. The tracer selects each benchmark's
+\texttt{checkpoint-main} thread. It excludes JVM background threads. Python
+3.12.3 and OpenJDK 21.0.12.1 run in WSL. Traces include interpreter and runtime
+instructions. They do not isolate source-level operations. This can hide
+differences between workload patterns.
+
+\section{Results}
+Java pointer chasing had the lowest IPC and highest memory-wait share. Python's
+five workloads had similar IPC and L1D miss rates. The tables give the detailed
+measurements. IPC means instructions completed per cycle. MPKI means misses
+per thousand instructions. Miss rates divide misses by accesses. Merged
+requests do not count as extra misses. A dash means no misses occurred, so
+latency is undefined.
+
+\input{checkpoint1_plots.tex}
+\input{checkpoint1_results.tex}
+
+\subsection{Retirement-stall classification}
+ChampSim does not assign every lost cycle to one cause. I use a specific rule
+to group zero-retirement cycles. This means cycles when no instruction retires.
+If the reorder-buffer head waits on an issued load, I count it as
+\emph{memory-wait}. Otherwise, I count it as \emph{pipeline/other}. These
+groups do not overlap and add up to all zero-retirement cycles. Percentages
+use total measured cycles. They do not include cycles with partial retirement.
+This rule describes this simulator only. It is not a full hardware stall
+breakdown.
+
+\input{checkpoint1_stalls.tex}
+
+\subsection{Cache-capacity sensitivity}
+I also tested caches with four times the baseline capacity. L1D grows from
+48\,KiB to 192\,KiB. LLC grows from 2\,MiB to 8\,MiB. I changed one cache at a
+time and kept all other settings. This checks sensitivity for these traces.
+It does not isolate each cache's causal effect. Cache effects can overlap.
+
+\input{checkpoint1_cache_sensitivity.tex}
+\input{checkpoint1_cache_plots.tex}
+
+\subsection{Paired workload contrasts}
+These comparisons show how each pair differs in the measured traces. They do
+not directly measure cycles lost to one source-level operation.
+\input{checkpoint1_findings.tex}
+
+\section{Interpretation and limitations}
+\subsection{What the patterns may mean}
+Python's five workloads look similar in these traces. IPC ranges from 0.9716
+to 0.9921. L1D miss rates stay near 4.4\%. Pointer chasing does not have a
+higher miss rate than sequential access here. Interpreter instructions may
+hide differences between the workloads. The pointer pattern may also fit the
+measured caches better than expected. These results cannot tell which
+explanation is correct.
+
+Java pointer chasing stands out. It has the lowest IPC, at 0.8578. Its
+memory-wait share is 75.46\%, compared with 35.83\% for sequential access.
+Each pointer load depends on the previous load. This may leave fewer
+independent memory requests while the processor waits. The measurements fit
+this explanation, but do not prove it. Pointer chasing has a 2.04\% L1D miss
+rate, and all its LLC accesses miss. These numbers need to be read together.
+
+The Java branch results also need care. Unpredictable branching has 15.249
+more total branch MPKI than predictable branching. But its conditional-branch
+MPKI is lower. Indirect-branch MPKI rises from 0.246 to 17.500. PIN records
+native instructions, not just branches in the source code. So this difference
+may include runtime control flow. It would be wrong to blame it all on the
+benchmark's conditional. Python's total branch MPKI changes less, by 0.230.
+
+Larger caches made little difference to cycle counts. A larger L1D reduced
+Python's miss rate slightly. Its largest cycle reduction was 0.48\%. A larger
+LLC did not reduce cycles in these runs. The tests cannot show whether misses
+were hidden by other work or were not helped by extra capacity. They do not
+show that cache misses are unimportant in general.
+
+\subsection{Limits of these results}
+Each result comes from one 1,000,000-instruction trace window. I did not
+measure variation across repeat runs. Longer traces and repeat runs could show
+whether these patterns last. Java traces exclude JVM background threads and
+use PIN-specific launch options. They may not match a default production JVM.
+The stall groups use the rule described above. They are not a complete
+hardware stall breakdown. This report cannot identify one general bottleneck
+for either language.
+
+\subsection{Takeaway}
+For these traces, Java pointer chasing was the clearest outlier. Python's
+workloads looked similar. Larger caches barely changed cycle counts. The
+results answer the initial question only for these short traces. Next, I
+would repeat the runs and use longer trace windows.
+
+\section{Reproducibility}
+Run \texttt{make checkpoint1} from the project root. Override
+the trace-skip, trace-length, warmup, and simulation-length settings to choose
+the capture and measurement region. Reproduce the settings used for these
+results and regenerate the metrics table/CSV with:
+\begin{verbatim}
+make checkpoint1 TRACE_SKIP_INSTRUCTIONS=5000000 \
+  TRACE_INSTRUCTIONS=1000000 WARMUP_INSTRUCTIONS=100000 \
+  SIMULATION_INSTRUCTIONS=899000
+python3 analysis/summarize_checkpoint1.py \
+  --trace-skip 5000000 --trace-instructions 1000000 \
+  --simulation-instructions 899000
+python3 analysis/summarize_cache_sensitivity.py
+\end{verbatim}
+These commands also generate the plot files included in the report.
+Compile this report with:
+\begin{verbatim}
+pdflatex checkpoint1_report.tex
+\end{verbatim}
+The detailed metrics are also saved in \texttt{checkpoint1\_metrics.csv}.
+
+\end{document}

@@ -1,0 +1,3 @@
+[submodule "Champsim/vcpkg"]
+	path = Champsim/vcpkg
+	url = https://github.com/Microsoft/vcpkg.git

@@ -1,0 +1,25 @@
+# Captured traces can be regenerated and are large binary files.
+/traces/
+
+# Local build products and installed dependencies.
+/build/
+/Champsim/bin/
+/Champsim/vcpkg/
+/Champsim/vcpkg_installed/
+/Champsim/.csconfig/
+/Champsim/tracer/pin/obj-intel64/
+**/__pycache__/
+*.py[cod]
+*.class
+*.o
+*.d
+
+# LaTeX build products; keep report and generated table/plot .tex sources.
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+
+# Local PIN logs.
+/pinos.log.*

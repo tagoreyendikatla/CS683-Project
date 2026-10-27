@@ -1,0 +1,8 @@
+{
+  "name": "llc_capacity",
+  "LLC": {
+    "sets": 8192,
+    "ways": 16,
+    "latency": 20
+  }
+}

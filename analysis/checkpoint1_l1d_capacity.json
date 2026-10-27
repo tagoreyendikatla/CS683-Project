@@ -1,0 +1,8 @@
+{
+  "name": "l1d_capacity",
+  "L1D": {
+    "sets": 256,
+    "ways": 12,
+    "latency": 5
+  }
+}

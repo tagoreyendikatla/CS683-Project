@@ -1,0 +1,41 @@
+\noindent\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrrrr}
+\toprule
+Runtime & Workload & Configuration & IPC & Cycles & L1D miss (\%) & LLC miss (\%) & Cycle reduction (\%) \\
+\midrule
+Python & Sequential & Baseline & 0.9716 & 925240 & 4.44 & 99.65 & +0.00 \\
+Python & Sequential & 4x L1D capacity & 0.9728 & 924125 & 4.09 & 99.84 & +0.12 \\
+Python & Sequential & 4x LLC capacity & 0.9716 & 925240 & 4.44 & 99.65 & +0.00 \\
+Python & BranchPredictable & Baseline & 0.9921 & 906208 & 4.49 & 98.56 & +0.00 \\
+Python & BranchPredictable & 4x L1D capacity & 0.9947 & 903808 & 4.12 & 99.64 & +0.26 \\
+Python & BranchPredictable & 4x LLC capacity & 0.9921 & 906208 & 4.49 & 98.56 & +0.00 \\
+Python & BranchUnpredictable & Baseline & 0.9801 & 917252 & 4.43 & 99.72 & +0.00 \\
+Python & BranchUnpredictable & 4x L1D capacity & 0.9848 & 912892 & 4.08 & 99.94 & +0.48 \\
+Python & BranchUnpredictable & 4x LLC capacity & 0.9801 & 917252 & 4.43 & 99.72 & +0.00 \\
+Python & PointerChase & Baseline & 0.9899 & 908178 & 4.39 & 99.28 & +0.00 \\
+Python & PointerChase & 4x L1D capacity & 0.9913 & 906926 & 4.08 & 99.44 & +0.14 \\
+Python & PointerChase & 4x LLC capacity & 0.9899 & 908178 & 4.39 & 99.28 & +0.00 \\
+Python & DynamicDispatch & Baseline & 0.9874 & 910447 & 4.43 & 99.75 & +0.00 \\
+Python & DynamicDispatch & 4x L1D capacity & 0.9906 & 907538 & 4.09 & 99.83 & +0.32 \\
+Python & DynamicDispatch & 4x LLC capacity & 0.9874 & 910447 & 4.43 & 99.75 & +0.00 \\
+Java & Sequential & Baseline & 1.5000 & 599312 & 0.83 & 100.00 & +0.00 \\
+Java & Sequential & 4x L1D capacity & 1.5000 & 599312 & 0.83 & 100.00 & +0.00 \\
+Java & Sequential & 4x LLC capacity & 1.5000 & 599312 & 0.83 & 100.00 & +0.00 \\
+Java & BranchPredictable & Baseline & 1.6170 & 556029 & 0.04 & 100.00 & +0.00 \\
+Java & BranchPredictable & 4x L1D capacity & 1.6170 & 556029 & 0.04 & 100.00 & +0.00 \\
+Java & BranchPredictable & 4x LLC capacity & 1.6170 & 556029 & 0.04 & 100.00 & +0.00 \\
+Java & BranchUnpredictable & Baseline & 1.5290 & 587846 & 0.00 & 0.00 & +0.00 \\
+Java & BranchUnpredictable & 4x L1D capacity & 1.5290 & 587846 & 0.00 & 0.00 & +0.00 \\
+Java & BranchUnpredictable & 4x LLC capacity & 1.5290 & 587846 & 0.00 & 0.00 & +0.00 \\
+Java & PointerChase & Baseline & 0.8578 & 1048083 & 2.04 & 100.00 & +0.00 \\
+Java & PointerChase & 4x L1D capacity & 0.8577 & 1048195 & 1.98 & 100.00 & -0.01 \\
+Java & PointerChase & 4x LLC capacity & 0.8578 & 1048083 & 2.04 & 100.00 & +0.00 \\
+Java & DynamicDispatch & Baseline & 1.4960 & 600818 & 0.13 & 100.00 & +0.00 \\
+Java & DynamicDispatch & 4x L1D capacity & 1.4960 & 600818 & 0.13 & 100.00 & +0.00 \\
+Java & DynamicDispatch & 4x LLC capacity & 1.4960 & 600818 & 0.13 & 100.00 & +0.00 \\
+\bottomrule
+\end{tabular}%
+}
+\par\medskip
+\noindent Python: the largest cycle reduction across these workloads under either 4$\times$ capacity change was 0.48\%. These tests do not identify a cache-capacity level as dominant.\\
+\noindent Java: the largest cycle reduction across these workloads under either 4$\times$ capacity change was 0.00\%. These tests do not identify a cache-capacity level as dominant.\\

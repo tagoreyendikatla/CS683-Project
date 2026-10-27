@@ -1,0 +1,18 @@
+\noindent\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrr}
+\toprule
+Runtime & Workload & Zero-retire cycles (\%) & Memory-wait (\%) & Pipeline/other (\%) \\
+\midrule
+Python & Sequential & 66.79 & 48.11 & 18.68 \\
+Python & BranchPredictable & 66.12 & 47.89 & 18.22 \\
+Python & BranchUnpredictable & 66.39 & 48.17 & 18.22 \\
+Python & PointerChase & 66.18 & 47.96 & 18.21 \\
+Python & DynamicDispatch & 66.20 & 47.75 & 18.45 \\
+Java & Sequential & 53.07 & 35.83 & 17.24 \\
+Java & BranchPredictable & 47.96 & 35.29 & 12.67 \\
+Java & BranchUnpredictable & 49.37 & 31.28 & 18.09 \\
+Java & PointerChase & 78.60 & 75.46 & 3.13 \\
+Java & DynamicDispatch & 52.87 & 30.93 & 21.95 \\
+\bottomrule
+\end{tabular}%
+}
