@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\setlength{\emergencystretch}{2em}
+
+\title{Microarchitectural Characterization of Dynamic Language Runtimes\\
+\large Checkpoint II: LLC Capacity and Prefetching}
+\author{Y Tagore Ravindra Sree}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report extends the earlier Python and Java trace study. It sweeps last-level
+cache (LLC) capacity and compares two L1 data-cache prefetchers on pointer
+chasing. LLC size did not change cycles in these trace windows. Next-line and
+IP-stride prefetching reduced cycles for the Python pointer-chase trace, but
+neither helped the Java trace. The results are from ChampSim trace replay, not
+execution-time measurements on a real processor.
+\end{abstract}
+
+\section{Question}
+The first checkpoint found little change when the LLC was enlarged from
+2\,MiB to 8\,MiB. This checkpoint tests more LLC sizes to see whether the
+measured traces show a capacity point where misses or cycles level off. It also
+tests whether simple hardware prefetchers help with dependent pointer loads.
+
+\section{Method}
+The experiment reuses the 1,000,000-instruction traces from checkpoint 1.
+ChampSim warms up for 100,000 instructions and measures about 899,000. The
+LLC sweep tests 0.5, 1, 2, 4, 8, and 16\,MiB. Only LLC capacity changes;
+latency remains 20 cycles. The existing 2\,MiB baseline and 8\,MiB results are
+reused.
+
+For the pointer-chase traces, the baseline with no prefetching is compared
+against \texttt{next\_line} and \texttt{ip\_stride} prefetching at L1D. Python
+and Java use the same trace and simulation settings as the LLC sweep. The
+reported prefetch usefulness counters come from L1D.
+
+\section{LLC capacity results}
+\input{checkpoint2_plots.tex}
+
+The CSV file \texttt{checkpoint2\_llc\_sweep.csv} contains IPC, cycles, memory
+wait share, and L1D and LLC miss counts for every run. A capacity knee in these
+plots is only an effective threshold for these trace windows and this
+simulator configuration. In these runs, all six capacities produced the same
+cycles and miss counts for each workload. Where there were LLC accesses, the
+LLC miss rate stayed between 98.56\% and 100\%. The Java unpredictable-branch
+trace had no LLC accesses, so its LLC miss rate is not defined. There is no
+capacity knee in the tested 0.5--16\,MiB range, so these results cannot locate
+a working-set threshold. The flat curve could mean little reuse in the captured
+window or a footprint beyond the tested range.
+
+\section{Pointer-chase prefetch results}
+\input{checkpoint2_prefetch_table.tex}
+
+Prefetches can be issued without helping. The useful and issued counts should
+be read alongside the cycle change and miss rates. These counters describe the
+simulator's L1D prefetch behavior; they are not measurements of a commercial
+processor.
+
+For Python, next-line prefetching reduced cycles from 908,178 to 809,460
+(10.87\%). IP-stride reduced them to 870,068 (4.20\%). The memory-wait share
+fell from 47.96\% to 41.29\% with next-line and 45.43\% with IP-stride.
+For Java, next-line increased cycles from 1,048,083 to 1,070,226 (2.11\%).
+IP-stride changed the count by only two cycles. Java's memory-wait share
+remained about 75.46\%. The prefetcher counters show that only a small fraction
+of issued prefetches were useful, especially for Java.
+
+This suggests next-line prefetching is worth testing further on the Python
+trace, but it does not show that it will help Python programs generally. Neither
+prefetcher solved the Java pointer-chase bottleneck in this trace. Increasing
+LLC capacity also gave no benefit in the tested range. A better next experiment
+would use longer or repeated trace windows and a workload with known LLC reuse.
+
+\section{Interpretation and limits}
+The LLC sweep and prefetcher comparison replay a single trace window per
+workload and language. There are no repeated runs to measure variation.
+Interpreter and JVM instructions are included, and the Python and Java data
+layouts are not identical. A flat miss-rate or cycle curve means that the
+tested trace did not benefit measurably from those configurations; it does not
+show that cache capacity or prefetching is unimportant in general.
+
+\subsection{Takeaway}
+The strongest result is the difference between the two pointer-chase traces:
+the Python trace benefited from both tested prefetchers, while the Java trace
+did not. LLC capacity from 0.5 to 16\,MiB made no measurable difference for any
+of the ten workload traces. These results are clues about the captured windows,
+not a ranking of the languages or a general hardware recommendation.
+
+\section{Reproducibility}
+In WSL, run:
+\begin{verbatim}
+bash analysis/run_checkpoint2.sh
+python3 analysis/summarize_checkpoint2.py
+pdflatex -interaction=nonstopmode -halt-on-error checkpoint2_report.tex
+\end{verbatim}
+The runner uses existing traces, writes ChampSim output under
+\texttt{results/checkpoint2/}, and restores the baseline ChampSim configuration
+when it exits. The summary script generates the CSV files, plot source, and
+prefetch table used here.
+
+\end{document}

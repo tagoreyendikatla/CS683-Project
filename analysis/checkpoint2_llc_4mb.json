@@ -1,0 +1,8 @@
+{
+  "name": "checkpoint2_llc_4mb",
+  "LLC": {
+    "sets": 4096,
+    "ways": 16,
+    "latency": 20
+  }
+}

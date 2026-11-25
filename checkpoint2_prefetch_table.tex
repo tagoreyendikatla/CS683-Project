@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrrrr}
+\toprule
+Runtime & L1D prefetcher & IPC & Cycles & Cycle reduction (\%) & Memory wait (\%) & L1D miss (\%) & LLC miss (\%) & Useful / issued \\
+\midrule
+Python & None & 0.9899 & 908178 & +0.00 & 47.96 & 4.39 & 99.28 & 0/0 \\
+Python & Next-line & 1.1110 & 809460 & +10.87 & 41.29 & 3.88 & 98.66 & 1845/171248 \\
+Python & IP-stride & 1.0330 & 870068 & +4.20 & 45.43 & 3.15 & 99.13 & 849/38373 \\
+Java & None & 0.8578 & 1048083 & +0.00 & 75.46 & 2.04 & 100.00 & 0/0 \\
+Java & Next-line & 0.8400 & 1070226 & -2.11 & 75.44 & 1.42 & 99.51 & 80/270309 \\
+Java & IP-stride & 0.8578 & 1048085 & +0.00 & 75.46 & 2.04 & 100.00 & 0/102 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Pointer-chase results. Prefetch usefulness counts are from the L1D.}
+\end{table}

@@ -20,10 +20,16 @@ stall classification.
 | `analysis/` | Cache configurations, experiment scripts, and metric/report generators. |
 | `results/` | ChampSim text output for the recorded baseline and cache experiments. |
 | `checkpoint1_report.pdf` | The current compiled checkpoint report. |
+| `checkpoint2_report.pdf` | The compiled LLC and prefetcher report. |
+| `checkpoint2_report.tex` | Editable report for the LLC and prefetcher experiments. |
+| `checkpoint2_presentation.pdf` | LaTeX slide presentation for checkpoint 2. |
+| `checkpoint2_presentation.tex` | Editable Beamer source for the checkpoint 2 presentation. |
 | `checkpoint1_report.tex` | Editable report source. |
 | `checkpoint1_metrics.csv` | Baseline measurements in CSV form. |
 | `checkpoint1_cache_sensitivity.csv` | Cache-capacity comparison in CSV form. |
+| `checkpoint2_llc_sweep.csv`, `checkpoint2_prefetcher.csv` | Checkpoint 2 measurements. |
 | `checkpoint1_*plots.tex` | Plot sources included by the report. |
+| `checkpoint2_plots.tex`, `checkpoint2_prefetch_table.tex` | Generated checkpoint 2 report content. |
 | `checkpoint1_*results.tex`, `checkpoint1_*stalls.tex`, `checkpoint1_*findings.tex`, `checkpoint1_*sensitivity.tex` | Generated report tables and comparison text. |
 | `CS683-2026-Project-Proposal-Template.pptx` | Course project proposal template. |
 | `howtopresent.pdf` | Course presentation guide. |
@@ -183,6 +189,40 @@ The report uses PGFPlots for its figures. The `.tex` plot and table files are
 generated from the same parsed results as the CSVs, so do not edit their
 numbers by hand.
 
+## Checkpoint 2: LLC capacity and prefetching
+
+The LLC sweep tests 0.5, 1, 2, 4, 8, and 16 MiB for all five workloads in both
+languages. It keeps the LLC latency at 20 cycles and all other baseline
+settings fixed. Existing 2 MiB baseline and 8 MiB sensitivity outputs are
+reused; the other capacities are simulated from the existing 1,000,000-
+instruction traces.
+
+For pointer chasing, the experiment compares the no-prefetch baseline with
+ChampSim's `next_line` and `ip_stride` prefetchers enabled at L1D. It runs both
+Python and Java traces with the same warmup and simulation lengths as
+checkpoint 1.
+
+In WSL, run:
+
+```sh
+bash analysis/run_checkpoint2.sh
+python3 analysis/summarize_checkpoint2.py
+pdflatex -interaction=nonstopmode -halt-on-error checkpoint2_report.tex
+```
+
+The runner rebuilds ChampSim for each variant and restores the baseline
+configuration when it exits. Simulation outputs are saved under
+`results/checkpoint2/`. The summary script writes the checkpoint 2 CSVs, plot
+source, and prefetcher table. These trace-window results describe only the
+captured executions; a flat miss-rate or cycle curve does not establish a
+general working-set size for Python or Java programs.
+
+To compile the checkpoint 2 presentation PDF from its LaTeX source, run:
+
+```sh
+pdflatex -interaction=nonstopmode -halt-on-error checkpoint2_presentation.tex
+```
+
 ## Cache-capacity experiment
 
 The capacity experiment compares the baseline against a four-times-larger L1D
@@ -241,6 +281,7 @@ caused a measured result.
   metrics, tables, comparisons, and the memory-wait plot.
 - `analysis/summarize_cache_sensitivity.py` — summarizes cache variants and
   creates the cache-capacity plot.
+- `checkpoint2_presentation.tex` — Beamer source for the checkpoint 2 PDF presentation.
 - `programs/README.md` — short descriptions of the benchmark programs and
   their run settings.
 - `Champsim/README.md` — upstream ChampSim build and simulator documentation.

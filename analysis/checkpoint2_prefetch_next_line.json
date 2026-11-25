@@ -1,0 +1,6 @@
+{
+  "name": "checkpoint2_prefetch_next_line",
+  "L1D": {
+    "prefetcher": "next_line"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "checkpoint2_prefetch_ip_stride",
+  "L1D": {
+    "prefetcher": "ip_stride"
+  }
+}
